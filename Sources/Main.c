@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	
-	// Handle SDL events
 	while (1)
 	{
+		// Handle SDL events
 		while (SDL_PollEvent(&Event))
 		{
 			switch (Event.type)
@@ -111,6 +111,8 @@ int main(int argc, char *argv[])
 					break;
 			}
 		}
+		
+		DisplayUpdate();
 	}
 	
 	return EXIT_SUCCESS;
