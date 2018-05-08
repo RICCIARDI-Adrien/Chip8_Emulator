@@ -232,8 +232,6 @@ void ProcessorExecuteNextInstruction(void)
 	
 	LOG_DEBUG("New Program Counter value : 0x%04X.", Processor_Register_Program_Counter);
 	
-	getchar();
-	
 	return;
 	
 Unknown_Instruction:

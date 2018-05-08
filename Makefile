@@ -1,11 +1,13 @@
 PATH_INCLUDES = Includes
 PATH_SOURCES = Sources
 
-CC = gcc
-CCFLAGS += -W -Wall -I$(PATH_INCLUDES)
-
 BINARY = chip8-emulator
+INCLUDES = -I$(PATH_INCLUDES)
+LIBRARIES = -lSDL2
 SOURCES = $(shell find $(PATH_SOURCES) -mindepth 1)
+
+CC = gcc
+CCFLAGS += -W -Wall
 
 debug: CCFLAGS += -g -O0
 debug: all
@@ -14,7 +16,7 @@ release: CCFLAGS += -O2 -DNDEBUG
 release: all
 
 all:
-	$(CC) $(CCFLAGS) $(SOURCES) -o $(BINARY)
+	$(CC) $(CCFLAGS) $(INCLUDES) $(SOURCES) $(LIBRARIES) -o $(BINARY)
 
 clean:
 	rm -f $(BINARY)
