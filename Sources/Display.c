@@ -30,7 +30,7 @@ static SDL_Window *Pointer_Display_Window;
 static SDL_Renderer *Pointer_Display_Main_Renderer;
 
 /** The video memory. One array cell stands for one pixel as seen by the Chip-8 program. */
-static unsigned char Display_Video_Memory[DISPLAY_WIDTH_PIXELS][DISPLAY_HEIGHT_PIXELS] = {0};
+static unsigned char Display_Video_Memory[DISPLAY_HEIGHT_PIXELS][DISPLAY_WIDTH_PIXELS] = {0};
 
 //-------------------------------------------------------------------------------------------------
 // Public functions
@@ -56,12 +56,6 @@ int DisplayInitialize(void)
 		return -1;
 	}
 	
-	// TEST
-	Display_Video_Memory[0][0] = 1;
-	Display_Video_Memory[0][1] = 1;
-	Display_Video_Memory[31][63] = 1;
-	Display_Video_Memory[2][4] = 1;
-	
 	return 0;
 }
 
@@ -73,17 +67,49 @@ void DisplayUninitialize(void)
 
 int DisplayDrawSprite(int X, int Y, int RAM_Address, int Size)
 {
+	unsigned char Byte, Is_Pixel_Currently_Set;
+	int i, Is_Pixel_Previouly_Set, Return_Value = 0;
+	
 	assert(X < DISPLAY_WIDTH_PIXELS);
 	assert(Y < DISPLAY_HEIGHT_PIXELS);
 	assert(RAM_Address < MEMORY_RAM_TOTAL_SIZE);
 	assert(Size < 16);
 	
-	return 0;
+	// Copy the sprite to the video memory
+	while (Size > 0)
+	{
+		// Load the sprite next 8 horizontal pixels
+		Byte = MemoryRAMReadByte(RAM_Address);
+		
+		// Expand each bit on a byte
+		for (i = 0; i < 8; i++)
+		{
+			// Check if current pixel is set to tell if a collision occurred
+			Is_Pixel_Previouly_Set = Display_Video_Memory[Y][X + i];
+			
+			// Is this bit set ?
+			if (Byte & (0x80 >> i)) Is_Pixel_Currently_Set = 1;
+			else Is_Pixel_Currently_Set = 0;
+			Display_Video_Memory[Y][X + i] = Is_Pixel_Currently_Set;
+			
+			// There is a collision if a turned on pixel is turned on another time
+			if (Is_Pixel_Previouly_Set && Is_Pixel_Currently_Set) Return_Value = 1;
+		}
+		
+		Y++;
+		// Do not cross display lower border
+		if (Y >= DISPLAY_HEIGHT_PIXELS) break;
+		
+		RAM_Address++;
+		Size--;
+	}
+	
+	return Return_Value;
 }
 
 void DisplayUpdate(void)
 {
-	int Row, Column;
+	int Coordinate_Y, Coordinate_X;
 	SDL_Rect Rectangle;
 	
 	// Clear the display with a blue background (like white-on-blue LCD modules)
@@ -104,21 +130,21 @@ void DisplayUpdate(void)
 		LOG_ERROR("Could not set rendering draw color (%s).", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
-	for (Row = 0; Row < DISPLAY_HEIGHT_PIXELS; Row++)
+	for (Coordinate_Y = 0; Coordinate_Y < DISPLAY_HEIGHT_PIXELS; Coordinate_Y++)
 	{
-		for (Column = 0; Column < DISPLAY_WIDTH_PIXELS; Column++)
+		for (Coordinate_X = 0; Coordinate_X < DISPLAY_WIDTH_PIXELS; Coordinate_X++)
 		{
 			// Do nothing if the pixel is not set
-			if (!Display_Video_Memory[Row][Column]) continue;
+			if (!Display_Video_Memory[Coordinate_Y][Coordinate_X]) continue;
 			
 			// Display the rectangle
-			Rectangle.x = Column * DISPLAY_SCALING_FACTOR;
-			Rectangle.y = Row * DISPLAY_SCALING_FACTOR;
+			Rectangle.x = Coordinate_X * DISPLAY_SCALING_FACTOR;
+			Rectangle.y = Coordinate_Y * DISPLAY_SCALING_FACTOR;
 			Rectangle.w = DISPLAY_SCALING_FACTOR;
 			Rectangle.h = DISPLAY_SCALING_FACTOR;
 			if (SDL_RenderFillRect(Pointer_Display_Main_Renderer, &Rectangle) != 0)
 			{
-				LOG_ERROR("Failed to render a rectangle at video memory coordinates (%d,%d) (%s).", Column, Row, SDL_GetError());
+				LOG_ERROR("Failed to render a rectangle at video memory coordinates (%d,%d) (%s).", Coordinate_X, Coordinate_Y, SDL_GetError());
 				exit(EXIT_FAILURE);
 			}
 		}

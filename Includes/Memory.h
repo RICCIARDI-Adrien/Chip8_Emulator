@@ -30,6 +30,10 @@ unsigned short MemoryStackPop(void);
  */
 int MemoryRAMLoadFromFile(char *Pointer_String_File_Name);
 
+/** Read 8-bit data from the RAM.
+ * @param Address The byte to read address.
+ * @return The read data.
+ */
 unsigned char MemoryRAMReadByte(int Address);
 void MemoryRAMWriteByte(int Address, unsigned char Data);
 

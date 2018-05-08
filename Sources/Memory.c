@@ -52,6 +52,13 @@ int MemoryRAMLoadFromFile(char *Pointer_String_File_Name)
 	return 0;
 }
 
+unsigned char MemoryRAMReadByte(int Address)
+{
+	assert(Address < MEMORY_RAM_TOTAL_SIZE);
+	
+	return Memory_RAM[Address];
+}
+
 unsigned short MemoryRAMReadWord(int Address)
 {
 	assert(Address < MEMORY_RAM_TOTAL_SIZE);

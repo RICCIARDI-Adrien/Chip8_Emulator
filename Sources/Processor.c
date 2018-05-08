@@ -2,6 +2,7 @@
  * @see Processor.h for description.
  * @author Adrien RICCIARDI
  */
+#include <Display.h>
 #include <Log.h>
 #include <Memory.h>
 #include <Processor.h>
@@ -223,6 +224,18 @@ void ProcessorExecuteNextInstruction(void)
 			// Execute instruction
 			Processor_Registers_Vk[Temporary_Byte_1] = rand();
 			Processor_Registers_Vk[Temporary_Byte_1] &= Temporary_Byte_2;
+			Processor_Register_Program_Counter += 2;
+			break;
+			
+		// DRW Vx, Vy, nibble
+		case 0xD:
+			// Decode instruction
+			Temporary_Byte_1 = (Instruction & 0x0F00) >> 8;
+			Temporary_Byte_2 = (Instruction & 0x00F0) >> 4;
+			Temporary_Word = Instruction & 0x000F; // Recycle Temporary_Word variable
+			LOG_DEBUG("Decoded instruction : DRW V%X, V%X, %d.", Temporary_Byte_1, Temporary_Byte_2, Temporary_Word);
+			// Execute instruction
+			DisplayDrawSprite(Temporary_Byte_1, Temporary_Byte_2, Processor_Register_I, Temporary_Word); // TODO handle collision
 			Processor_Register_Program_Counter += 2;
 			break;
 			
