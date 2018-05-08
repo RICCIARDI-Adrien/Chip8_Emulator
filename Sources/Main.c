@@ -3,8 +3,10 @@
  * @author Adrien RICCIARDI
  */
 #include <Memory.h>
+#include <Processor.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 //-------------------------------------------------------------------------------------------------
 // Entry point
@@ -20,6 +22,11 @@ int main(int argc, char *argv[])
 	
 	// Load the requested program
 	if (MemoryRAMLoadFromFile(argv[1]) != 0) return EXIT_FAILURE;
+	
+	srand(time(NULL));
+	
+	// Execute the program
+	while (1) ProcessorExecuteNextInstruction();
 	
 	return EXIT_SUCCESS;
 }

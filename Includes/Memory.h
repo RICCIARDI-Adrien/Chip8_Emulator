@@ -9,9 +9,12 @@
 // Constants
 //-------------------------------------------------------------------------------------------------
 /** Chip-8 total RAM size in bytes. */
-#define MEMORY_TOTAL_RAM_SIZE 4096
+#define MEMORY_RAM_TOTAL_SIZE 4096
 /** Chip-8 stack size in words. */
-#define MEMORY_TOTAL_STACK_SIZE 16
+#define MEMORY_STACK_TOTAL_SIZE 16
+
+/** Where to load programs and to start them. */
+#define MEMORY_RAM_PROGRAM_ENTRY_POINT 512
 
 //-------------------------------------------------------------------------------------------------
 // Functions
@@ -28,8 +31,14 @@ unsigned short MemoryStackPop(void);
 int MemoryRAMLoadFromFile(char *Pointer_String_File_Name);
 
 unsigned char MemoryRAMReadByte(int Address);
-unsigned short MemoryRAMReadWord(int Address);
 void MemoryRAMWriteByte(int Address, unsigned char Data);
+
+/** Read 16-bit data from the RAM and convert them to the emulator platform endianness.
+ * @param Address The word to read address. Address will automatically be 16-bit aligned.
+ * @return The read data converted to platform endianness.
+ */
+unsigned short MemoryRAMReadWord(int Address);
+
 void MemoryRAMWriteWord(int Address, unsigned short Data);
 
 #endif
